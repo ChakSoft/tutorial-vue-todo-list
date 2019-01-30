@@ -1,0 +1,36 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: monospace;
+}
+
+.flex {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+}
+.todo-list {
+  width: 500px;
+  height: 500px;
+  background-color: grey;
+  color: lightyellow;
+  padding: 1em;
+}
+.todo-item {
+  border: 1px solid lightyellow;
+  border-radius: 10px;
+  padding: 0.4em 1em;
+  margin-bottom: 0.5em;
+  cursor: pointer;
+}
+.todo-item:hover {
+  background-color: rgba(255, 255, 224, 0.85);
+  color: grey;
+}
+.todo-item.done {
+  background-color: green;
+  color: white;
+  font-weight: bold;
+}
