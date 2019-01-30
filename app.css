@@ -24,6 +24,9 @@ html, body {
   padding: 0.4em 1em;
   margin-bottom: 0.5em;
   cursor: pointer;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 .todo-item:hover {
   background-color: rgba(255, 255, 224, 0.85);
@@ -33,4 +36,26 @@ html, body {
   background-color: green;
   color: white;
   font-weight: bold;
+}
+
+.tabber {
+  flex-direction: column;
+}
+.tabber .tab-headers {
+  height: 4em;
+}
+.tabber .tab-headers ul {
+  list-style-type: none;
+}
+.tabber .tab-headers ul li.tab {
+  float: left;
+  color: green;
+  text-align: center;
+  cursor: pointer;
+  padding: 0.5em 3em;
+}
+.tabber .tab-headers ul li.tab.active {
+  font-weight: bold;
+  color: white;
+  background-color: grey;
 }
