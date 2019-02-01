@@ -11,7 +11,7 @@ html, body {
   align-items: center;
   height: 100%;
 }
-.todo-list {
+.todo-list, .todo-logs {
   width: 500px;
   height: 500px;
   background-color: grey;

@@ -1,4 +1,30 @@
+const todoListMixin = {
+  props : {
+    data : {
+      type : Array,
+      default : () => [],
+    },
+  },
+  methods : {
+    setDone (todo) {
+      this.$emit('done', todo)
+    },
+  },
+}
+
+const dateFormatMixin = {
+  methods : {
+    formatDate (date) {
+      if (!date) {
+        return ''
+      }
+      return date.toLocaleString()
+    },
+  },
+}
+
 Vue.component('todo-item', {
+  mixins : [dateFormatMixin],
   props : {
     todo : {
       required : true,
@@ -18,11 +44,8 @@ Vue.component('todo-item', {
   `,
   computed : {
     doneAt () {
-      if (!this.todo.doneAt) {
-        return ''
-      }
-      return this.todo.doneAt.toLocaleString()
-    }
+      return this.formatDate(this.todo.doneAt)
+    },
   },
   methods : {
     setDone () {
@@ -32,9 +55,10 @@ Vue.component('todo-item', {
 })
 
 Vue.component('todo-list', {
+  mixins : [todoListMixin],
   template : `
     <div
-      v-if="todos.length"
+      v-if="data.length"
       class="todo-list">
       <todo-item
         v-for="todo in displayedTodos"
@@ -44,11 +68,6 @@ Vue.component('todo-list', {
     </div>
   `,
   props : {
-    todos : {
-      type : Array,
-      required : true,
-      default : () => [],
-    },
     doneFiltered : {
       type : Boolean,
       default : false,
@@ -56,14 +75,58 @@ Vue.component('todo-list', {
   },
   computed : {
     displayedTodos () {
-      return this.todos.filter((todo) => todo.done === this.doneFiltered)
+      return this.data.filter((todo) => todo.done === this.doneFiltered)
     },
   },
-  methods : {
-    setDone (todo) {
-      this.$emit('done', todo)
+})
+
+Vue.component('todo-log', {
+  mixins : [dateFormatMixin],
+  props : {
+    logs : {
+      type : Array,
+      default : () => [],
     },
   },
+  template : `
+    <div class="todo-logs">
+      <div
+        v-for="(log, index) in logs"
+        :key="index"
+        class="todo-log">
+        {{ formatDate(log.at) }} : {{ log.event }}
+      </div>
+    </div>
+  `,
+})
+
+Vue.component('tab-todo-list', {
+  mixins : [todoListMixin],
+  template : `
+    <todo-list
+      :data="data"
+      @done="setDone" />
+  `,
+})
+Vue.component('tab-todo-done', {
+  mixins : [todoListMixin],
+  template : `
+    <todo-list
+      :data="data"
+      done-filtered
+      @done="setDone" />
+  `,
+})
+Vue.component('tab-todo-log', {
+  props : {
+    data : {
+      type : Array,
+      default : () => [],
+    },
+  },
+  template : `
+    <todo-log :logs="data" />
+  `,
 })
 
 Vue.component('todo-manager', {
@@ -84,7 +147,19 @@ Vue.component('todo-manager', {
           doneAt : null,
         },
       ],
+      logs : [],
     }
+  },
+  computed : {
+    activeTab () {
+      return `tab-${this.active}`
+    },
+    activeData () {
+      if (this.active === 'todo-log') {
+        return this.logs
+      }
+      return this.todos
+    },
   },
   template : `
     <div class="flex tabber">
@@ -102,12 +177,18 @@ Vue.component('todo-manager', {
             @click="display('todo-done')">
             Done
           </li>
+          <li
+            :class="{ active: active === 'todo-log' }"
+            class="tab"
+            @click="display('todo-log')">
+            Log
+          </li>
         </ul>
       </div>
       <div class="tab-pages">
-        <todo-list
-          :done-filtered="active === 'todo-done'"
-          :todos="todos"
+        <component
+          :is="activeTab"
+          :data="activeData"
           @done="setDone" />
       </div>
     </div>
@@ -121,6 +202,10 @@ Vue.component('todo-manager', {
       if (!todo.doneAt) {
         todo.doneAt = new Date()
       }
+      this.logs.unshift({
+        at : new Date(),
+        event : `${todo.title} set to ${todo.done ? 'done' : 'undone'}`,
+      })
     },
   },
 })
