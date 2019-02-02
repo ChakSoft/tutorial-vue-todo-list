@@ -5,11 +5,31 @@ html, body {
   font-family: monospace;
 }
 
+.full-width {
+  width: 100%;
+}
+input.full-width {
+  box-sizing: border-box;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+}
+
 .flex {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.flex.column {
+  flex-direction: column;
+}
+.flex.full-height {
   height: 100%;
+}
+.flex.wrap {
+  flex-wrap: wrap;
 }
 .todo-list, .todo-logs {
   width: 500px;
@@ -36,6 +56,10 @@ html, body {
   background-color: green;
   color: white;
   font-weight: bold;
+}
+
+.todo-input {
+  width: 100%;
 }
 
 .tabber {

@@ -23,6 +23,43 @@ const dateFormatMixin = {
   },
 }
 
+Vue.component('todo-input', {
+  data () {
+    return {
+      value : '',
+      error : false,
+    }
+  },
+  template : `
+    <div class="flex wrap todo-input">
+      Create a new todo :
+      <input
+        v-model="value"
+        class="full-width"
+        autofocus
+        @keypress.enter="validate" />
+      <div
+        v-if="error"
+        class="error">
+        The title is required. Please type something !
+      </div>
+    </div>
+  `,
+  methods : {
+    validate () {
+      if (!this.value || !this.value.length) {
+        this.error = true
+        // setTimeout(() => {
+        //   this.error = false
+        // }, 3000)
+      } else {
+        this.$emit('todo-added', this.value)
+        this.value = ''
+      }
+    },
+  },
+})
+
 Vue.component('todo-item', {
   mixins : [dateFormatMixin],
   props : {
@@ -133,20 +170,7 @@ Vue.component('todo-manager', {
   data () {
     return {
       active : 'todo-list',
-      todos : [
-        {
-          id : 1,
-          title : 'Buy milk',
-          done : false,
-          doneAt : null,
-        },
-        {
-          id : 2,
-          title : 'Buy toilet paper',
-          done : false,
-          doneAt : null,
-        },
-      ],
+      todos : [],
       logs : [],
     }
   },
@@ -162,34 +186,37 @@ Vue.component('todo-manager', {
     },
   },
   template : `
-    <div class="flex tabber">
-      <div class="tab-headers">
-        <ul>
-          <li
-            :class="{ active: active === 'todo-list' }"
-            class="tab"
-            @click="display('todo-list')">
-            To Do
-          </li>
-          <li
-            :class="{ active: active === 'todo-done' }"
-            class="tab"
-            @click="display('todo-done')">
-            Done
-          </li>
-          <li
-            :class="{ active: active === 'todo-log' }"
-            class="tab"
-            @click="display('todo-log')">
-            Log
-          </li>
-        </ul>
-      </div>
-      <div class="tab-pages">
-        <component
-          :is="activeTab"
-          :data="activeData"
-          @done="setDone" />
+    <div class="flex column">
+      <todo-input @todo-added="addTodo" />
+      <div class="flex tabber">
+        <div class="tab-headers">
+          <ul>
+            <li
+              :class="{ active: active === 'todo-list' }"
+              class="tab"
+              @click="display('todo-list')">
+              To Do
+            </li>
+            <li
+              :class="{ active: active === 'todo-done' }"
+              class="tab"
+              @click="display('todo-done')">
+              Done
+            </li>
+            <li
+              :class="{ active: active === 'todo-log' }"
+              class="tab"
+              @click="display('todo-log')">
+              Log
+            </li>
+          </ul>
+        </div>
+        <div class="tab-pages">
+          <component
+            :is="activeTab"
+            :data="activeData"
+            @done="setDone" />
+        </div>
       </div>
     </div>
   `,
@@ -207,13 +234,25 @@ Vue.component('todo-manager', {
         event : `${todo.title} set to ${todo.done ? 'done' : 'undone'}`,
       })
     },
+    addTodo (title) {
+      this.todos.push({
+        id : this.todos.length + 1,
+        title,
+        done : false,
+        doneAt : null,
+      })
+      this.logs.unshift({
+        at : new Date(),
+        event : `${title} has been created.`,
+      })
+    },
   },
 })
 
 new Vue({
   el : '#app',
   template : `
-    <div class="flex">
+    <div class="flex full-height">
       <todo-manager />
     </div>
   `,
